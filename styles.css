@@ -433,6 +433,18 @@ main {
   ); /* Move the timeline item up by 5 pixels on hover */
 }
 
+
+.company-logo-container {
+  display: inline-block;
+  position: relative;
+}
+
+.company-logo {
+  width: 70px;
+  height: auto;
+  margin-right: 10px;
+}
+
 .timeline-item::before {
   content: "";
   position: absolute;
