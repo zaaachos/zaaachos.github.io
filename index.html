@@ -22,6 +22,9 @@
     ></script>
     <link rel="stylesheet" href="styles.css" />
     <title>Giorgos Zachariadis</title>
+    <!-- Add this inside the <header> or wherever you want the profile photo to appear -->
+
+
   </head>
   <body class="light" id="top">
     <header class="header center">
@@ -74,7 +77,11 @@
 
     <main>
       <!-- About -->
+      
       <div class="about center">
+        <div class="profile-photo">
+          <img src="assets/profile.jpg" alt="Your Name" class="profile-image">
+        </div>
         <h1>Hi, I am <span class="about__name"></span></h1>
         <h2 class="about__role">A Machine Learning & AI Engineer</h2>
         <p class="about__desc">
@@ -90,6 +97,7 @@
 
                       <!-- Load library from the CDN -->
         <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+        
 
         <!-- Setup and start animation! -->
         <script>

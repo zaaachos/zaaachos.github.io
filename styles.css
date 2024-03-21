@@ -591,3 +591,27 @@ main {
 .other__details a {
   color: #6790ff;
 }
+
+
+/* Add this to your styles.css file */
+.profile-photo {
+  text-align: center; /* Center the photo */
+
+}
+
+.profile-image {
+  max-width: 220px; /* Set maximum width */
+  height: auto; /* Allow height to adjust automatically */
+  border-radius: 50%; /* Make it round */
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3); /* Add shadow for depth */
+  transition: transform 0.3s ease; /* Add transition effect */
+}
+
+.profile-image:hover {
+  transform: scale(1.05); /* Scale up slightly on hover */
+}
+
+
+
+
+
