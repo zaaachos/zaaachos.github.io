@@ -12,34 +12,13 @@ To view my portfolio, simply visit my [website](https://zaaachos.github.io/).
 
 ## Features
 
+- **Experience Overview:** Explore my professional experience, including job roles, responsibilities, and accomplishments.
+- **Education Background:** Learn about my academic journey, including degrees earned, fields of study, and academic achievements.
+- **Honors and Awards:** Discover the honors and awards I've received, recognizing my contributions and achievements.
 - **Project Showcase:** Browse through my projects to see what I've been working on.
 - **Skills Display:** Learn about my technical skills and expertise.
 - **Contact Information:** Find out how to get in touch with me for collaboration or inquiries.
 
-## Contributing
-
-If you have suggestions, improvements, or would like to report an issue with my portfolio, feel free to open an issue or submit a pull request. Your contributions are greatly appreciated!
-
-## License
-
-Specify the license under which your portfolio is released. If you're using an open-source license, provide details here.
-
-[License Name and Link](link_to_license)
-
 ## Acknowledgements
 
-If you've used any third-party resources or libraries in building your portfolio, give credit to their authors here.
-
-## Contact Me
-
-- **Email:** [Your Email Address](mailto:your@email.com)
-- **LinkedIn:** [Your LinkedIn Profile](link_to_linkedin_profile)
-- **Portfolio Website:** [Your Portfolio Website](link_to_your_portfolio_website)
-- **GitHub:** [Your GitHub Profile](link_to_your_github_profile)
-- **Twitter:** [Your Twitter Handle](link_to_your_twitter_profile)
-
-Feel free to reach out to me via any of the above channels. I'd love to connect with you!
-
----
-
-Feel free to customize this README according to your preferences and add any additional sections you deem necessary. Once customized, save it as `README.md` in the root directory of your portfolio repository on GitHub.
+The template of this portfolio was heavily inspired by [Raj Shekhar](https://github.com/rajshekhar26/cleanfolio-minimal)
