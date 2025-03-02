@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Portfolio" />
+  <meta name="description" content="Personal Website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -13,6 +13,7 @@
 
   <script src="https://kit.fontawesome.com/fa62c117c7.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
   <title>Giorgos Zachariadis</title>
   <!-- Add this inside the <header> or wherever you want the profile photo to appear -->
 
@@ -34,7 +35,7 @@
           <a class="link link--nav" href="#education">education</a>
         </li>
         <li class="nav__list-item">
-          <a class="link link--nav" href="#publications">publication & honors</a>
+          <a class="link link--nav" href="#publications">research & publication</a>
         </li>
         <li class="nav__list-item">
           <a class="link link--nav" href="#certifications">certifications</a>
@@ -73,14 +74,12 @@
       <img src="assets/profile.jpg" alt="Your Name" class="profile-image">
     </div>
     <h1>Hi, I am <span class="about__name"></span></h1>
-    <h2 class="about__role">A Machine Learning & AI Engineer</h2>
+    <h2 class="about__role">AI Engineer</h2>
     <p class="about__desc">
-      Results-driven Machine Learning Engineer with 2+ years of hands-on
-      experience crafting data systems across diverse industries, fueled by
-      nothing but the finest brews of coffee ☕️. Passionate about coding,
-      open to new technologies, and committed to completing all tasks given
-      with diligence and hard work. Proven track record in academia and
-      professional level.
+      Results-driven ML/AI Engineer with 3+ years of experience in developing data systems across diverse domains including Agronomy, 
+      Energy Management, and Biomedicine. Expertise in Python, SQL, Docker, Java, and cloud technologies (Azure, Azure DevOps). 
+      Proven track record in deep learning, computer vision, and NLP, including winning 1st and 2nd place in ImageCLEFmedical 2022. 
+      Experienced in deploying machine learning models and developing chatbots using LLM/GenAI/RAG technologies.
     </p>
 
 
@@ -99,7 +98,7 @@
 
 
     <div class="about__contact center">
-      <a href="https://salmon-alyse-29.tiiny.site/">
+      <a href="assets/GZ_resume.pdf">
         <span class="btn btn--outline">Resume</span>
       </a>
 
@@ -111,7 +110,7 @@
         <i aria-hidden="true" class="fab fa-linkedin"></i>
       </a>
 
-      <a href="https://scholar.google.gr/citations?user=1lbCoTAAAAAJ&hl=el" aria-label="google" class="link link--icon">
+      <a href="https://scholar.google.gr/citations?user=1lbCoTAAAAAJ" aria-label="google" class="link link--icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 512 512">
           <path fill="currentColor"
             d="M390.9 298.5s0 .1.1.1c9.2 19.4 14.4 41.1 14.4 64C405.3 445.1 338.5 512 256 512s-149.3-66.9-149.3-149.3c0-22.9 5.2-44.6 14.4-64c1.7-3.6 3.6-7.2 5.6-10.7c4.4-7.6 9.4-14.7 15-21.3c27.4-32.6 68.5-53.3 114.4-53.3c33.6 0 64.6 11.1 89.6 29.9c9.1 6.9 17.4 14.7 24.8 23.5c5.6 6.6 10.6 13.8 15 21.3c2 3.4 3.8 7 5.5 10.5zm26.4-18.8c-30.1-58.4-91-98.4-161.3-98.4s-131.2 40-161.3 98.4L0 202.7L256 0l256 202.7l-94.7 77.1z" />
@@ -128,7 +127,7 @@
     </div>
   </div>
 
-  <div class="vspace"></div>
+  <!-- <div class="vspace"></div> -->
 
   <!-- Experience -->
   <section class="section experience" id="experience">
@@ -146,20 +145,19 @@
           </p>
           <div class="timeline-details">
             <p>
-              Collaborated closely with business stakeholders to understand their in-depth requirements and designed
-              AI-infused solutions that effectively addressed their needs.
+              Designed and deployed <b>RAG</b> virtual assistants using <b>Python</b>, <b>Azure OpenAI</b>, <b>Azure Cognitive Search</b>, and <b>CI/CD</b> pipelines.
             </p>
             <p>
-              Utilized Microsoft Azure's extensive suite of tools and services, including web services and machine
-              learning, to architect, develop, and deploy advanced AI solutions tailored to diverse customer demands.
+              Developed ML-driven supply chain system with <b>MLflow, Docker, FastAPI, Celery, RabbitMQ</b>, and <b>Azure</b> cloud services with <b>Azure Container Apps</b>.
             </p>
             <p>
-              Created and managed Django applications, putting in place CI/CD pipelines and Dockerized solutions for
-              production to provide reliable, scalable AI services, RESTful APIs, and automated, effective deployments.
+              Streamlined workflows and built <b>RESTful APIs in Django</b>, reducing execution and validation time by <i>75%</i> for public sector analytics.
             </p>
             <p>
-              Working in an Agile environment with Azure DevOps for efficient project management and automated
-              deployments.
+              Integrated CI/CD workflows with <b>Azure DevOps, Docker, and Dev Containers</b> for scalable deployments.
+            </p>
+            <p>
+              Collaborated closely with stakeholders, mentored teams, and delivered technical presentations.
             </p>
           </div>
 
@@ -172,23 +170,16 @@
           <div class="company-logo-container">
             <img src="/assets/ppc.png" alt="PwC Logo" class="company-logo">
           </div>
-          <h3 class="timeline-title">Data & Software Engineer</h3>
+          <h3 class="timeline-title">Software Engineer</h3>
           <p class="timeline-company">
             @ <a href="https://www.ppcgroup.com/en/">PPC S.A.</a>
           </p>
           <div class="timeline-details">
             <p>
-              As the sole Java (Spring Boot) developer for PPC S.A.'s Energy
-              Trading Unit, I undertook responsibilities encompassing ETLs
-              analysis, design, and development, Oracle DB programming for
-              ensuring data integrity, and configuration of the Tomcat web
-              server.
+              Sole <b>Java Spring</b> developer for Energy Trading Unit of PPC, handling ETL design with <b>Oracle.</b>
             </p>
             <p>
-              Used a combination of Primefaces, Plotly, CSS to develop
-              interactive dashboard visualizations of key data points and
-              delivered exploratory data analysis services to 100+
-              end-users.
+              Developed interactive dashboards with <b>Primefaces, Plotly, and CSS</b> for <i>100+</i> users.
             </p>
           </div>
           <p class="timeline-period">Feb 2023 - Apr 2024</p>
@@ -203,19 +194,11 @@
           <h3 class="timeline-title">IT Support Engineer</h3>
           <p class="timeline-company">
             @
-            <a href="https://www.mod.mil.gr/en/">Ministry of National Defense, Greece</a>
+            <a href="https://www.mod.mil.gr/en/">Ministry of National Defense, Hellinc Army, Greece</a>
           </p>
           <div class="timeline-details">
             <p>
-              Served as IT Support Engineer during my compulsory military
-              service at the Ministry of National Defense of Greece,
-              specializing in Communication Systems Support, application
-              maintenance, and IT consulting.
-            </p>
-            <p>
-              Contributed to the administration and maintenance of internal
-              military networks, completing 150+ software and hardware
-              technical assignments.
+              Served as IT Support Engineer, providing systems support and IT consulting
             </p>
           </div>
           <p class="timeline-period">Dec 2022 - Nov 2023</p>
@@ -233,18 +216,7 @@
           </p>
           <div class="timeline-details">
             <p>
-              Drove Augmenta's new project to enhance agricultural
-              operations by developing distinctive field-maps, using a
-              fusion of Machine Learning (scikit-learn models like k-NN and
-              Linear Regression) and Computer Vision (utilizing OpenCV with
-              Geospatial analysis).
-            </p>
-            <p>
-              Developed data-driven tools for 50+ farmers, aiding logistics,
-              field monitoring, and crop damage mitigation via dynamic PDF
-              reports generation, developed using Reportlab, matplotlib,
-              Flask. Applied OOP and Git Workflow to enhance existing
-              repositories.
+              Led agricultural optimization project using <b>scikit-learn and OpenCV</b>, developing tools to improve logistics and crop damage mitigation for <i>250+</i> farmers.
             </p>
           </div>
           <p class="timeline-period">Apr 2022 - Oct 2022</p>
@@ -259,16 +231,12 @@
           <h3 class="timeline-title">Junior Machine Learning Researcher</h3>
           <p class="timeline-company">
             @
-            <a href="http://nlp.cs.aueb.gr/">Athens University of Economics and Business (AUEB NLP
-              Group)</a>
+            <a href="http://nlp.cs.aueb.gr/">AUEB University, NLP
+              Group</a>
           </p>
           <div class="timeline-details">
             <p>
-              Conducted research on Medical Image Captioning using
-              uni-modal, cross-modal, multi-modal Deep Learning approaches
-              such as CNNs, Transformers, BERT-based models, RNNs, and
-              Neural Retrieval algorithms. Utilized PyTorch, TensorFlow,
-              NLTK, scipy, Huggingface, scikit-learn, CUDA.
+              Conducted research on <b>NLP, Computer Vision, and Deep Learning</b> for medical diagnosis, using <b>PyTorch, TensorFlow, and scikit-learn</b> for model development and evaluation.
             </p>
 
             <p>
@@ -284,50 +252,63 @@
       </div>
     </div>
   </section>
-
-  <div class="vspace"></div>
+<!-- 
+  <div class="vspace"></div> -->
 
   <section class="section education" id="education">
     <div class="container">
       <h2 class="section__title">Education <i class="fas fa-graduation-cap"></i></h2>
 
-      <div class="other__container">
-        <div class="other__item">
-          <h3>B.Sc. (Honors) in Computer Science</h3>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="company-logo-container">
+            <img src="/assets/aueb.jpg" alt="PwC Logo" class="company-logo">
+          </div>
+          <h3 class="timeline-title">B.Sc. in Informatics</h3>
+          <p class="timeline-company">
+            
+            <a href="http://nlp.cs.aueb.gr/">AUEB University</a>
+          </p>
           <p class="other__details">
-            <strong>Institution</strong>: <a href="https://www.dept.aueb.gr/en/cs">Athens University of Economics and
-              Business</a><br />
-            <strong>Grade</strong>: 8.15/10 (<strong>Top10</strong> of the class)<br />
+            <strong>Four-year Degree, Grade</strong>: 8.15/10 (<strong>Top4%</strong> of the class)<br />
             <strong>Thesis</strong>: <a href="http://nlp.cs.aueb.gr/theses/g_zachariadis_bsc_thesis.pdf">Exploring
               Uni-modal, Cross-modal, and Multi-modal Diagnostic Captioning</a><br />
-            <strong>Major</strong>: Databases, Knowledge Management, Artificial Intelligence<br />
-            <strong>Activities and societies</strong>: <a href="http://nlp.cs.aueb.gr/">Natural Language Processing
+            <strong>Major</strong>: Artificial Intelligence & Data Systems<br />
+            <strong>Member</strong> of <a href="http://nlp.cs.aueb.gr/">Natural Language Processing
               (NLP) Group</a><br />
-            Year: 2018 - 2022
           </p>
+          <p class="timeline-period">Oct 2018 - Oct 2022</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section publications" id="publications">
-    <h2 class="section__title">Publications and Honors <i class="fas fa-book"> <i class="fas fa-award"></i></i></h2>
 
-    <div class="other__container">
-      <div class="other__item">
-        <h3>AUEB NLP Group at ImageCLEFmedical Caption 2022</h3>
-        <p class="other__details">
-          Role: Author<br />
-          Journal/Conference: Proceedings of the CLEF 2022<br />
-          Year: 2022<br />
-          Honors: <strong>1st</strong> and <strong>2nd</strong> place in ImageCLEFmedical Caption Prediction Task.
-        </p>
+  <section class="section publications" id="publications">
+    <div class="container">
+      <h2 class="section__title">Research and publication <i class="fas fa-book"></i></h2>
+
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <div class="company-logo-container">
+            <img src="/assets/imageclef.png" alt="PwC Logo" class="company-logo">
+          </div>
+          <h3 class="timeline-title">AUEB NLP Group at ImageCLEFmedical Caption 2022</h3>
+          <p class="timeline-company">
+            
+            <a href="http://ceur-ws.org/Vol-3180/paper-101.pdf">[publication]</a> <a href="https://github.com/zaaachos/Thesis-Diagnostic-Captioning">[code]</a>
+          </p>
+          <p class="other__details">
+            Placed <b>1st and 2nd</b> in <a href="https://www.imageclef.org/">ImageCLEFmedical</a>, an international competitive campaign for image analysis and retrieval. <br \>
+            Researched <b>Medical Image Captioning</b> using <b>CNNs, RNNs, Transformers</b> with <b>PyTorch and TensorFlow.</b>
+          </p>
+          <p class="timeline-period">2022</p>
+        </div>
       </div>
     </div>
-
   </section>
 
-  <div class="vspace"></div>
+  <!-- <div class="vspace"></div> -->
 
   <!-- Certifications -->
   <section class="section certifications" id="certifications">
@@ -521,10 +502,7 @@
       <ul class="skills__list">
         <li class="skills__list-item btn btn--plain">Python <i class="fab fa-python"></i></li>
         <li class="skills__list-item btn btn--plain">Java <i class="fab fa-java"></i></li>
-        <li class="skills__list-item btn btn--plain">HTML <i class="fab fa-html5"></i></li>
-        <li class="skills__list-item btn btn--plain">CSS <i class="fab fa-css3"></i></li>
-        <li class="skills__list-item btn btn--plain">Javascript <i class="fab fa-js"></i></li>
-        <li class="skills__list-item btn btn--plain">C++</li>
+        <li class="skills__list-item btn btn--plain">HTML/CSS<i class="fab fa-html5"></i></li>
         <li class="skills__list-item btn btn--plain">R</li>
         <li class="skills__list-item btn btn--plain">Kotlin</li>
       </ul>
@@ -532,7 +510,7 @@
 
     <div class="skill-category">
       <h3 class="category__title">
-        <i class="fas fa-brain"></i> Machine Learning
+        <i class="fas fa-brain"></i> Machine Learning & AI
       </h3>
       <ul class="skills__list">
         <li class="skills__list-item btn btn--plain">TensorFlow</li>
@@ -543,7 +521,7 @@
         <li class="skills__list-item btn btn--plain">NLTK</li>
         <li class="skills__list-item btn btn--plain">scipy</li>
         <li class="skills__list-item btn btn--plain">HuggingFace</li>
-        <li class="skills__list-item btn btn--plain">W & B</li>
+        <li class="skills__list-item btn btn--plain">MLFlow</li>
         <li class="skills__list-item btn btn--plain">Numpy</li>
         <li class="skills__list-item btn btn--plain">Pandas</li>
         <li class="skills__list-item btn btn--plain">matplotlib</li>
@@ -557,13 +535,11 @@
         <i class="fas fa-database"></i> Database
       </h3>
       <ul class="skills__list">
-        <li class="skills__list-item btn btn--plain">SQL</li>
+        <li class="skills__list-item btn btn--plain">MS SQL</li>
         <li class="skills__list-item btn btn--plain">Oracle SQL Developer</li>
         <li class="skills__list-item btn btn--plain">SQL Workbench</li>
-        <li class="skills__list-item btn btn--plain">Pinecone</li>
         <li class="skills__list-item btn btn--plain">MongoDB</li>
         <li class="skills__list-item btn btn--plain">PostgreSQL</li>
-        <li class="skills__list-item btn btn--plain">Heroku</li>
 
       </ul>
     </div>
@@ -575,13 +551,15 @@
       <ul class="skills__list">
         <li class="skills__list-item btn btn--plain">Azure</li>
         <li class="skills__list-item btn btn--plain">Docker</li>
+        <li class="skills__list-item btn btn--plain">DevContainers</li>
         <li class="skills__list-item btn btn--plain">Linux</li>
         <li class="skills__list-item btn btn--plain">Git <i class="fab fa-git-alt"></i></li>
+        <li class="skills__list-item btn btn--plain">Poetry/uv</li>
+        <li class="skills__list-item btn btn--plain">Azure DevOps Pipelines <i class="fab fa-git-alt"></i></li>
         <li class="skills__list-item btn btn--plain">GitHub</li>
-        <li class="skills__list-item btn btn--plain">Gitlab</li>
-        <li class="skills__list-item btn btn--plain">Android Studio</li>
-        <li class="skills__list-item btn btn--plain">Wordpress</li>
         <li class="skills__list-item btn btn--plain">Latex</li>
+        <li class="skills__list-item btn btn--plain">Android Studio</li>
+
 
         <!-- Add more database-related skills here -->
       </ul>
@@ -592,12 +570,12 @@
         <i class="fas fa-layer-group"></i> Frameworks
       </h3>
       <ul class="skills__list">
+        <li class="skills__list-item btn btn--plain">FastAPI</li>
         <li class="skills__list-item btn btn--plain">Django</li>
         <li class="skills__list-item btn btn--plain">Spring Boot</li>
         <li class="skills__list-item btn btn--plain">Primefaces</li>
         <li class="skills__list-item btn btn--plain">JavaServer Faces (JSF)</li>
         <li class="skills__list-item btn btn--plain">Flask</li>
-        <li class="skills__list-item btn btn--plain">FastAPI</li>
         <li class="skills__list-item btn btn--plain">Selenium</li>
 
       </ul>
@@ -606,13 +584,13 @@
     <!-- Add more skill categories as needed -->
   </section>
 
-  <div class="vspace"></div>
+  <!-- <div class="vspace"></div> -->
 
   <!-- Contact -->
   <section class="section contact center" id="contact">
 
     <h2 class="section__title">Contact <i class="fas fa-envelope"></i></h2>
-    <p>Hit me up on LinkedIn or send me a direct email if you wanna collaborate on your next ML project.<br />
+    <p>Hit me up on LinkedIn or send me a direct email<br />
       <br />
     </p>
     <a href="mailto:zachariadis.gs@gmail.com">
