@@ -1225,6 +1225,18 @@ main {
   transition: color 0.2s ease;
 }
 
+
+.post__image {
+  width: 100%;       /* πιάνει όλο το πλακίδιο */
+  max-width: 100%;   /* δεν μικραίνει */
+  height: 200px;  
+  border-radius: 16px;
+  object-fit: cover;
+  margin: 0 0 1.5rem 0;
+  display: block;
+}
+
+
 .post__read-more:hover {
   text-decoration: underline;
 }

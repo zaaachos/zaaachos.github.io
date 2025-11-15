@@ -1,5 +1,5 @@
 .post-content {
-  max-width: 800px;
+  max-width: 60em;
   margin: 8em auto 4em;
   padding: 0 2rem;
 }
@@ -148,4 +148,46 @@
   .next-post {
     text-align: left;
   }
+}
+
+.post-featured-image {
+  width: 100%;
+  height: auto;
+  /* max-height: 380px; */
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+  
+}
+
+.post-body ul {
+  list-style: disc;
+  margin-left: 1.5em; /* αναγκαίο γιατί πολλά resets μηδενίζουν τα margins */
+}
+
+.post-body li {
+  margin-bottom: 0.5em;
+}
+
+
+.post-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 1rem;
+}
+
+.post-body th,
+.post-body td {
+  border: 1px solid rgba(var(--clr-primary-rgb), 0.2);
+  padding: 0.75em 1em;
+  text-align: left;
+}
+
+.post-body th {
+  background: rgba(var(--clr-primary-rgb), 0.1);
+  color: var(--clr-primary);
+  font-weight: 600;
 }

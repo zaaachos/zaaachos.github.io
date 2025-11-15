@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- SEO -->
+  <meta name="description"
+        content="Complete guide on securing RabbitMQ with TLS and Mutual TLS (mTLS), including certificate generation, Celery configuration, Docker setup, and production-ready best practices.">
+
+  <!-- OpenGraph / Twitter -->
+  <meta property="og:title" content="Securing RabbitMQ with TLS & Mutual TLS (mTLS)" />
+  <meta property="og:description"
+        content="A production-grade guide for RabbitMQ TLS and mTLS with Celery, Docker, certificate-based authentication, troubleshooting, and best practices." />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="https://yourdomain.com/assets/rabbit_mq_tls.png" />
+  <meta property="og:url" content="https://yourdomain.com/posts/rabbitmq-tls-celery/" />
+  <meta property="og:site_name" content="Giorgos Zachariadis" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/posts/post-styles.css" />
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+
+  <!-- Prism.js (syntax highlighting) -->
+  <link id="prism-light" rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.css">
+  <link id="prism-dark" rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism-okaidia.css" disabled>
+
+  <title>Securing RabbitMQ and Celery with TLS & Mutual TLS — Giorgos Zachariadis</title>
+
+  <!-- Extra styles for TOC + read time (move to CSS file if you want) -->
+  <style>
+    .post-layout {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .toc-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 7rem;
+      align-self: flex-start;
+      background: var(--clr-bg-alt);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(var(--clr-primary-rgb), 0.1);
+      font-size: 0.9rem;
+    }
+
+    .toc-sidebar h3 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 1rem;
+    }
+
+    .toc-sidebar ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .toc-sidebar li {
+      margin: 0.25rem 0;
+    }
+
+    .toc-sidebar a {
+      text-decoration: none;
+      color: var(--clr-primary);
+    }
+
+    .toc-sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .read-time {
+      font-size: 0.9rem;
+      color: var(--clr-primary);
+      margin-bottom: 1rem;
+      text-align: center;
+      font-weight: 500;
+      opacity: 0.85;
+    }
+
+    .breadcrumbs {
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.7;
+    }
+
+    .breadcrumbs a {
+      color: var(--clr-primary);
+      text-decoration: none;
+    }
+
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 900px) {
+      .post-layout {
+        flex-direction: column;
+      }
+
+      .toc-sidebar {
+        position: static;
+        width: 100%;
+        order: -1;
+      }
+    }
+  </style>
+</head>
+
+<body class="light" id="top">
+  <header class="header center">
+    <h3><a href="/" class="link">GZ.</a></h3>
+
+    <nav class="nav center">
+      <ul class="nav__list center">
+        <li class="nav__list-item"><a class="link link--nav" href="/posts.html">all posts</a></li>
+        <li class="nav__list-item"><a class="link link--nav" href="/">home</a></li>
+      </ul>
+
+      <button type="button" aria-label="toggle theme" class="btn btn--icon">
+        <i aria-hidden="true" id="btn-theme" class="fas fa-moon"></i>
+      </button>
+
+      <button type="button" aria-label="toggle navigation" class="btn btn--icon nav__hamburger">
+        <i aria-hidden="true" class="fas fa-bars"></i>
+      </button>
+    </nav>
+  </header>
+
+  <main class="post-content">
+
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumbs">
+      <a href="/">Home</a> ›
+      <a href="/posts.html">Blog Posts</a> ›
+      <span>Security</span> ›
+      <span>RabbitMQ TLS &amp; mTLS</span>
+    </nav>
+
+    <div class="post-layout">
+      <!-- Sidebar TOC -->
+      <aside id="toc" class="toc-sidebar"></aside>
+
+      <article class="blog-post">
+        <img src="/assets/rabbit_mq_tls.png" alt="RabbitMQ TLS Architecture" class="post-featured-image">
+
+        <header class="post-header">
+          <h1>Securing RabbitMQ and Celery with TLS/SSL (mTLS) — A Complete Guide</h1>
+          <div class="post-meta">
+            <time datetime="2025-11-15">November 15, 2025</time>
+            <div id="read-time" class="read-time"></div>
+            <div class="post__tags">
+              <span class="tag">RabbitMQ</span>
+              <span class="tag">Security</span>
+              <span class="tag">TLS</span>
+              <span class="tag">mTLS</span>
+              <span class="tag">Celery</span>
+              <span class="tag">Python</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- POST BODY (enriched) -->
+        <div class="post-body">
+
+          <p>
+            Messaging systems are foundational components of modern distributed architectures. Whether you're running
+            asynchronous workloads, orchestrating microservices, or building event-driven systems, your message broker
+            becomes the communication backbone. And like every critical infrastructure component, it must be
+            secured properly.
+          </p>
+
+          <p>
+            RabbitMQ is one of the most widely adopted brokers in production environments. This guide walks through securing it
+            using <strong>TLS encryption</strong> and <strong>Mutual TLS (mTLS)</strong> — both essential for protecting
+            data-in-transit and verifying client identity. We will also configure <strong>Celery</strong>, the most popular
+            Python task queue, so workers authenticate using certificates rather than passwords.
+          </p>
+
+          <h2>🧠 Why TLS Matters for RabbitMQ</h2>
+
+          <p>
+            RabbitMQ is a powerful message broker that helps decouple services and scale applications, but
+            <strong>by default it transmits data in plaintext</strong>.
+            This means <strong>credentials, messages, and metadata can be intercepted</strong> over the network if encryption is not enabled.
+          </p>
+
+          <p>That’s where <strong>TLS (Transport Layer Security)</strong> comes in.</p>
+
+          <h3>🛡️ What Are TLS and SSL?</h3>
+
+          <p>
+            <strong>TLS</strong> is the modern protocol used to secure data traveling across networks.
+            Although <strong>SSL</strong> is deprecated, many still use the term "SSL" informally to refer to TLS-based secure communication.
+          </p>
+
+          <p>Core security guarantees:</p>
+          <ul>
+            <li><strong>Encryption</strong> — prevents attackers from reading your messages.</li>
+            <li><strong>Authentication</strong> — verifies who you're talking to (server-only or mutual).</li>
+            <li><strong>Integrity</strong> — ensures your messages aren’t tampered with.</li>
+          </ul>
+
+          <p>TLS is used everywhere: HTTPS, FTPS, SMTP, gRPC — and of course, RabbitMQ.</p>
+
+          <img src="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/zyq91dcr036c2firxj75.png"
+              alt="TLS SSL Diagram"
+              style="width:100%; border-radius:12px; margin:1.5rem 0;">
+
+          <h2>🛡️ TLS vs mTLS — What’s the Difference?</h2>
+
+          <p><strong>TLS</strong> encrypts traffic and authenticates the server. <strong>mTLS</strong> (Mutual TLS) authenticates both parties.</p>
+
+          <h3>TLS (One-way TLS)</h3>
+          <ul>
+            <li>Client verifies the server certificate</li>
+            <li>Traffic is encrypted</li>
+            <li>Client still uses username/password to authenticate</li>
+          </ul>
+
+          <h3>mTLS (Mutual TLS)</h3>
+          <ul>
+            <li>Client presents its own certificate</li>
+            <li>Server verifies client identity cryptographically</li>
+            <li>No passwords required</li>
+            <li>Ideal for microservices, Kubernetes, service meshes</li>
+          </ul>
+
+          <h3>Comparison</h3>
+          <table>
+            <tr><th>Feature</th><th>TLS</th><th>mTLS</th></tr>
+            <tr><td>Encrypts traffic</td><td>✔</td><td>✔</td></tr>
+            <tr><td>Verifies server identity</td><td>✔</td><td>✔</td></tr>
+            <tr><td>Verifies client identity</td><td>❌</td><td>✔</td></tr>
+            <tr><td>Requires passwords</td><td>✔</td><td>❌</td></tr>
+            <tr><td>Zero-trust ready</td><td>❌</td><td>✔</td></tr>
+          </table>
+
+          <p><strong>We choose mTLS</strong> because it ensures only trusted workloads can communicate with RabbitMQ.</p>
+
+          <h2>1. What Is RabbitMQ?</h2>
+
+          <p>
+            RabbitMQ is a high-performance message broker implementing AMQP. It enables asynchronous communication between
+            distributed services.
+          </p>
+
+          <p>RabbitMQ offers:</p>
+          <ul>
+            <li>✔ Decoupling between services</li>
+            <li>✔ Reliability (acks, retries, durability)</li>
+            <li>✔ Advanced routing (topics, fanout, direct)</li>
+            <li>✔ High availability & clustering</li>
+            <li>✔ Multi-language support</li>
+          </ul>
+
+          <p>Because it connects many services, it becomes a high-value security target — TLS/mTLS is essential.</p>
+
+          <h2>2. What Is Celery and Why Does It Use RabbitMQ?</h2>
+
+          <p>
+            Celery is Python’s most popular distributed task queue, enabling:
+          </p>
+
+          <ul>
+            <li>Background processing</li>
+            <li>Async jobs</li>
+            <li>Scheduled tasks</li>
+            <li>Parallel workers</li>
+            <li>Long-running processing</li>
+          </ul>
+
+          <p>
+            Celery workers maintain persistent connections to RabbitMQ — so securing the broker is mandatory.
+          </p>
+
+          <h2>4. Understanding Certificates</h2>
+
+          <p>RabbitMQ requires three types of certificates:</p>
+          <ul>
+            <li><strong>CA Certificate</strong> — trusted authority</li>
+            <li><strong>Server Certificate</strong> — identifies RabbitMQ</li>
+            <li><strong>Client Certificate</strong> — identifies Celery workers</li>
+          </ul>
+
+          <h2>5. Prerequisites</h2>
+
+          <p>
+Before generating or configuring any certificates, make sure you have
+<strong>Docker</strong> installed. In this guide, we use the official
+<code>rabbitmq:4-management</code> Docker image throughout the entire setup.
+This approach keeps the environment reproducible, avoids system-level
+modifications, and ensures RabbitMQ always runs with a clean configuration. <a href="https://www.rabbitmq.com/docs/download" target="_blank">
+      [link]
+    </a>
+</p>
+
+<p>
+All TLS files, configuration files, and definitions will be mounted into the
+container, so nothing needs to be installed directly inside your operating system.
+You will create a local project structure similar to:
+</p>
+
+<pre><code class="language-bash">project/
+  ├── certs/
+  │     ├── ca_certificate.pem
+  │     ├── server_certificate.pem
+  │     ├── server_key.pem
+  │     ├── client_certificate.pem
+  │     └── client_key.pem
+  ├── rabbitmq.conf
+  ├── definitions.json
+  ├── Dockerfile
+  └── docker-compose.yml
+</code></pre>
+
+<p>
+The certificates you generate will be placed inside the <code>certs/</code> folder,
+and Docker will automatically mount them into the container under
+<code>/etc/rabbitmq/certs</code>.
+</p>
+
+
+<p>
+To enable TLS or mTLS in RabbitMQ, you must have the essential certificate files:
+</p>
+
+<pre><code class="language-bash">ca_certificate.pem
+server_certificate.pem
+server_key.pem
+client_certificate.pem
+client_key.pem
+</code></pre>
+
+<p>
+You can generate these using <strong>tls-gen</strong> (the official RabbitMQ tool) or manually with OpenSSL.
+Both methods are shown below.
+</p>
+
+<h3>Generate certificates using tls-gen</h3>
+
+<pre><code class="language-bash"># Clone the official tls-gen repo
+git clone https://github.com/rabbitmq/tls-gen.git
+
+cd tls-gen/basic
+
+# Generate certificates
+make
+
+# Certificates will appear under:
+# ./result/
+</code></pre>
+
+<h3>Generate certificates using OpenSSL</h3>
+
+<pre><code class="language-bash"># 1. Create a Certificate Authority (CA)
+openssl genrsa -out ca_key.pem 4096
+openssl req -x509 -new -nodes -key ca_key.pem -sha256 -days 365 \
+  -out ca_certificate.pem -subj "/CN=MyRootCA"
+
+# 2. Generate server key + CSR
+openssl genrsa -out server_key.pem 4096
+openssl req -new -key server_key.pem -out server.csr \
+  -subj "/CN=rabbitmq.local"
+
+# 3. Sign server certificate using CA
+openssl x509 -req -in server.csr -CA ca_certificate.pem -CAkey ca_key.pem \
+  -CAcreateserial -out server_certificate.pem -days 365 -sha256
+
+# 4. Generate client key + CSR
+openssl genrsa -out client_key.pem 4096
+openssl req -new -key client_key.pem -out client.csr \
+  -subj "/CN=celery_worker"
+
+# 5. Sign client certificate
+openssl x509 -req -in client.csr -CA ca_certificate.pem -CAkey ca_key.pem \
+  -CAcreateserial -out client_certificate.pem -days 365 -sha256
+</code></pre>
+
+
+
+<h2>6. Store Certificates</h2>
+
+<p>
+Since we are working fully inside Docker, we no longer store certificates directly
+under <code>/etc/rabbitmq/</code> on the host machine. Instead, we place them inside a
+project-local directory:
+</p>
+
+<pre><code class="language-bash">project/
+  └── certs/
+</code></pre>
+
+<p>
+Docker will then mount this folder into the container at runtime:
+</p>
+
+<pre><code class="language-yaml">volumes:
+  - ./certs:/etc/rabbitmq/certs
+</code></pre>
+
+<p>
+The RabbitMQ container requires strict permissions on private keys.
+To avoid permission issues, set them locally:
+</p>
+
+<pre><code class="language-bash">chmod 600 certs/*_key.pem
+</code></pre>
+
+<p>
+(Docker will preserve these permissions inside the container.)
+</p>
+
+
+          <h2>7. Configuring RabbitMQ for TLS &amp; mTLS</h2>
+
+<p>
+RabbitMQ is configured via an external <code>rabbitmq.conf</code> file that we mount into
+the container. Create this file in the root of your project directory:
+</p>
+
+<pre><code class="language-bash">touch rabbitmq.conf
+</code></pre>
+
+<p>
+Then paste the following TLS and mTLS configuration into it:
+</p>
+
+          <pre><code class="language-ini"># Disable non-TLS AMQP
+listeners.tcp = none
+
+# TLS port
+listeners.ssl.default = 5671
+
+# Certificate paths
+ssl_options.cacertfile = /etc/rabbitmq/certs/ca_certificate.pem
+ssl_options.certfile   = /etc/rabbitmq/certs/server_certificate.pem
+ssl_options.keyfile    = /etc/rabbitmq/certs/server_key.pem
+
+# mTLS
+ssl_options.verify = verify_peer
+ssl_options.fail_if_no_peer_cert = true
+
+auth_mechanisms.1 = EXTERNAL
+ssl_cert_login_from = common_name
+</code></pre>
+
+          <h2>8. Enable Authentication Plugin</h2>
+
+<p>
+Enabling RabbitMQ’s SSL authentication plugin (<code>rabbitmq_auth_mechanism_ssl</code>) is
+required for certificate-based authentication. This plugin allows RabbitMQ to extract the
+Common Name (CN) from a client certificate and use it as the RabbitMQ username — which is
+the core requirement for true passwordless mTLS.
+</p>
+
+<p>
+When working with Docker, this plugin <strong>must be enabled inside the image</strong>,
+not on the host. Attempting to run <code>rabbitmq-plugins</code> on your local machine has
+no effect on the containerized instance.
+</p>
+
+<h3>Enabling the plugin in Docker (recommended)</h3>
+
+<p>
+The correct way to enable the plugin is directly inside the Dockerfile so every container
+bootstraps with mTLS support out of the box:
+</p>
+
+<pre><code class="language-docker">RUN rabbitmq-plugins enable --offline rabbitmq_auth_mechanism_ssl
+</code></pre>
+
+<p>
+This ensures:
+</p>
+
+<ul>
+  <li>The plugin is active in every environment (local, CI, production)</li>
+  <li>No manual commands are required after launching the container</li>
+  <li>The configuration is deterministic and reproducible</li>
+</ul>
+
+<h3>Alternative: enabling it manually inside a running container</h3>
+
+<p>
+If you want to enable the plugin manually during debugging, you can do so inside the
+running RabbitMQ container:
+</p>
+
+<pre><code class="language-bash">docker exec -it rabbitmq rabbitmq-plugins enable rabbitmq_auth_mechanism_ssl
+</code></pre>
+
+<p>
+This works but <strong>does not persist</strong> unless you rebuild your Docker image.
+</p>
+
+<h3>Official documentation</h3>
+
+<p>
+RabbitMQ’s documentation for TLS and certificate-based authentication is distributed across
+multiple pages and often references older versions, which makes it confusing to follow.
+These are the most relevant sources:
+</p>
+
+<ul>
+  <li>
+    RabbitMQ TLS Guide:
+    <a href="https://www.rabbitmq.com/ssl.html" target="_blank">
+      https://www.rabbitmq.com/ssl.html
+    </a>
+  </li>
+  <li>
+    Authentication using SSL certificates:
+    <a href="https://www.rabbitmq.com/authentication.html#ssl" target="_blank">
+      https://www.rabbitmq.com/authentication.html#ssl
+    </a>
+  </li>
+  <li>
+    <code>rabbitmq_auth_mechanism_ssl</code> plugin:
+    <a href="https://www.rabbitmq.com/plugins.html#rabbitmq_auth_mechanism_ssl" target="_blank">
+      https://www.rabbitmq.com/plugins.html#rabbitmq_auth_mechanism_ssl
+    </a>
+  </li>
+</ul>
+
+<p>
+With the plugin enabled, RabbitMQ will map the CN from the client certificate to the
+corresponding RabbitMQ user, enabling secure and seamless mTLS authentication.
+</p>
+
+
+
+          <h2>9. Create User Matching Client Certificate CN</h2>
+
+<p>
+For mTLS to work, RabbitMQ must have a user whose username matches the
+Common Name (CN) of the client certificate—for example <code>celery_user</code>.
+</p>
+
+<p>
+There are two ways to create this user:
+</p>
+
+<h3>Option A — Recommended: Use definitions.json</h3>
+<p>
+Create a <code>definitions.json</code> file (shown below) and mount it into the container.
+This makes RabbitMQ fully reproducible and eliminates the need for manual commands.
+</p>
+
+<h3>Option B — Using the RabbitMQ CLI</h3>
+<p>
+If you prefer creating the user manually inside the running container, you can use:
+</p>
+
+<pre><code class="language-bash">docker exec -it rabbitmq rabbitmqctl add_user celery_user ""
+docker exec -it rabbitmq rabbitmqctl set_permissions -p / celery_user ".*" ".*" ".*"
+</code></pre>
+
+<p>
+However, this is not persistent and must be repeated every time unless persisted
+via definitions.json.
+</p>
+
+
+          <h2>🧾 definitions.json (Optional but Recommended)</h2>
+
+          <p>Preconfigure RabbitMQ users, permissions, and vhosts at startup.</p>
+
+          <pre><code class="language-json">{
+  "users": [
+    {
+      "name": "celery_user",
+      "tags": "administrator",
+      "password_hash": "",
+      "hashing_algorithm": "rabbit_password_hashing_sha256"
+    }
+  ],
+  "vhosts": [
+    { "name": "my_vhost" }
+  ],
+  "permissions": [
+    {
+      "user": "celery_user",
+      "vhost": "my_vhost",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ]
+}
+</code></pre>
+
+          <h2>🐳 Dockerfile for TLS-enabled RabbitMQ</h2>
+
+<p>
+To make RabbitMQ fully TLS-enabled inside Docker, we bake the certificates, the
+<strong>rabbitmq.conf</strong> file, and the authentication plugin directly into the image.
+This ensures that RabbitMQ starts with TLS and mTLS support from the very first boot.
+</p>
+
+<p>
+Below is a minimal but production-ready Dockerfile that:
+</p>
+
+<ul>
+  <li>Enables the <code>rabbitmq_auth_mechanism_ssl</code> plugin</li>
+  <li>Copies all TLS certificates into the correct directory</li>
+  <li>Includes the RabbitMQ configuration and definitions</li>
+  <li>Sets correct permissions for private key files</li>
+</ul>
+
+<p>The configuration is intentionally simple and easy to extend.</p>
+
+
+          <pre><code class="language-docker">FROM rabbitmq:3.12-management
+
+RUN rabbitmq-plugins enable --offline rabbitmq_auth_mechanism_ssl
+
+COPY certs/ /etc/rabbitmq/certs/
+COPY rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
+COPY definitions.json /etc/rabbitmq/definitions.json
+
+RUN chown -R rabbitmq:rabbitmq /etc/rabbitmq && \
+    chmod 600 /etc/rabbitmq/certs/*.pem
+
+EXPOSE 5671 15671
+</code></pre>
+
+          <h2>🐋 docker-compose.yml</h2>
+
+<p>
+Using <code>docker-compose</code> makes it easy to run a fully TLS-enabled RabbitMQ broker locally or
+in development environments. The example below mounts certificates, configuration files, and exposes
+the TLS-secured AMQP port <strong>5671</strong> and the HTTPS management UI on <strong>15671</strong>.
+</p>
+
+<p>
+If you want RabbitMQ to auto-import users, vhosts, permissions, or exchanges on startup, simply provide a
+<code>definitions.json</code> file (as shown below).
+</p>
+
+
+          <pre><code class="language-yaml">version: '3.8'
+
+services:
+  rabbitmq:
+    build: .
+    ports:
+      - "5671:5671"
+      - "15671:15671"
+    volumes:
+      - ./certs:/etc/rabbitmq/certs
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./definitions.json:/etc/rabbitmq/definitions.json
+</code></pre>
+
+          <h2>10. Celery Configuration (TLS + mTLS)</h2>
+
+<p>
+Celery connects to RabbitMQ over AMQP, which means every worker maintains a persistent TCP connection.
+When enabling TLS or mTLS, the connection must be wrapped in SSL using Python’s <code>ssl</code> module.
+</p>
+
+<p>
+The configuration below enables full Mutual TLS (mTLS), meaning:
+</p>
+
+<ul>
+  <li>The Celery worker verifies the RabbitMQ server certificate</li>
+  <li>RabbitMQ verifies the Celery worker certificate</li>
+  <li>No username/password authentication is required</li>
+</ul>
+
+<p>
+This setup provides strong identity guarantees and is ideal for microservices, Kubernetes clusters,
+or zero-trust environments.
+</p>
+
+
+          <pre><code class="language-python">from celery import Celery
+import ssl
+import os
+
+CERTS_BASE = "/app/certs"
+
+app = Celery("my_app")
+
+app.conf.update(
+    broker_url="amqps://rabbitmq_host:5671/my_vhost",
+    broker_use_ssl={
+        'ca_certs': os.path.join(CERTS_BASE, 'ca_certificate.pem'),
+        'certfile': os.path.join(CERTS_BASE, 'client_certificate.pem'),
+        'keyfile': os.path.join(CERTS_BASE, 'client_key.pem'),
+        'cert_reqs': ssl.CERT_REQUIRED,
+        'ssl_version': ssl.PROTOCOL_TLS_CLIENT,
+    },
+    result_backend="rpc://",
+)
+</code></pre>
+
+          <pre><code class="language-bash">celery -A my_app worker -l info</code></pre>
+
+         <h2>11. Testing TLS &amp; mTLS</h2>
+
+<p>
+Before connecting Celery or any application, it is highly recommended to test the TLS handshake manually
+using <code>openssl s_client</code>. This helps confirm that:
+</p>
+
+<ul>
+  <li>The server certificate is valid</li>
+  <li>The CA is trusted</li>
+  <li>The client certificate is accepted (for mTLS)</li>
+  <li>No hostname or certificate mismatch errors appear</li>
+</ul>
+
+<p>
+The command below performs a full TLS handshake using your CA, client certificate, and private key:
+</p>
+
+
+          <pre><code class="language-bash">openssl s_client -connect rabbitmq_host:5671 \
+  -CAfile ca_certificate.pem \
+  -cert client_certificate.pem \
+  -key client_key.pem
+</code></pre>
+
+          <h2>12. Architecture Diagrams</h2>
+
+<h3>RabbitMQ with TLS (Encrypted Connection)</h3>
+<div class="mermaid">
+flowchart LR
+    Client[Client / Celery Worker] -- 🔒 Encrypted TLS --> Broker[(RabbitMQ)]
+
+    subgraph Certificates
+        CA[CA Certificate]
+        ServerCert[Server Certificate]
+    end
+
+    Broker -- Uses --> ServerCert
+    Client -- Trusts --> CA
+</div>
+
+<p>
+This diagram shows basic TLS: the connection is encrypted and the client verifies the
+server's certificate. The server does <strong>not</strong> verify who the client is.
+</p>
+
+
+<h3>RabbitMQ with mTLS (Mutual Authentication)</h3>
+<div class="mermaid">
+flowchart LR
+    subgraph Client
+        Worker[Celery Worker]
+        ClientCert[Client Certificate]
+    end
+
+    subgraph Server
+        Broker[(RabbitMQ)]
+        ServerCert2[Server Certificate]
+    end
+
+    CA2[(Certificate Authority)]
+
+    Worker -- Sends ClientCert --> Broker
+    Broker -- Sends ServerCert2 --> Worker
+
+    Worker -- Trusts --> CA2
+    Broker -- Trusts --> CA2
+
+    Worker <--> Broker:::secure
+
+    classDef secure stroke:#00A000,stroke-width:2px;
+</div>
+
+<p>
+With mTLS, both sides verify each other using certificates.
+This ensures that only trusted applications can connect to RabbitMQ.
+</p>
+
+
+          <h2>13. Troubleshooting</h2>
+
+          <table>
+            <tr><th>Error</th><th>Meaning</th><th>Fix</th></tr>
+            <tr><td>unknown ca</td><td>Client doesn't trust CA</td><td>Use correct CA file</td></tr>
+            <tr><td>hostname mismatch</td><td>Server CN doesn't match host</td><td>Regenerate cert</td></tr>
+            <tr><td>Access refused</td><td>CN mismatch</td><td>Create RabbitMQ user = CN</td></tr>
+            <tr><td>Permission denied</td><td>Key unreadable</td><td>chmod 600 key files</td></tr>
+          </table>
+
+          <h2>14. Security Best Practices</h2>
+
+<ul>
+  <li><strong>Disable port 5672</strong> (unencrypted AMQP) to enforce TLS-only communication.</li>
+  <li><strong>Ship only TLS 1.2 or 1.3</strong>; disable older, insecure protocol versions.</li>
+  <li><strong>Rotate certificates</strong> on a regular schedule or automate rotation with CI/CD.</li>
+  <li><strong>Use separate vhosts per application</strong> to isolate permissions and reduce blast radius.</li>
+  <li><strong>Prefer Mutual TLS (mTLS)</strong> for internal microservices and zero-trust environments.</li>
+  <li><strong>Restrict private key access</strong> (e.g., <code>chmod 600</code>) and avoid embedding keys in images.</li>
+  <li><strong>Monitor TLS handshake failures</strong> via RabbitMQ logs and Prometheus exporters.</li>
+  <li><strong>Use strong cipher suites</strong> and disable deprecated algorithms where possible.</li>
+  <li><strong>Adopt the principle of least privilege</strong> in user/vhost permissions.</li>
+</ul>
+
+<p>
+When properly configured, TLS and mTLS transform RabbitMQ into a reliable, secure messaging backbone—
+protecting every Celery worker, microservice, and background job that depends on it.
+By combining encrypted transport, certificate-based authentication, and Dockerized configuration,
+you create a modern, production-ready setup that can scale confidently and securely.
+</p>
+
+<p>
+If you're implementing secure messaging in distributed systems, mastering TLS and mTLS with RabbitMQ
+is a powerful investment—one that pays off with stronger resilience, safer services, and greater trust
+across your infrastructure.
+</p>
+
+<h3>Further Reading & References</h3>
+
+<ul>
+  <li>
+    RabbitMQ TLS & Certificates — 
+    <a href="https://www.rabbitmq.com/ssl.html" target="_blank">https://www.rabbitmq.com/ssl.html</a>
+  </li>
+  <li>
+    Authentication using SSL certificates —
+    <a href="https://www.rabbitmq.com/authentication.html#ssl" target="_blank">https://www.rabbitmq.com/authentication.html#ssl</a>
+  </li>
+  <li>
+    Official RabbitMQ Docker Image —
+    <a href="https://hub.docker.com/_/rabbitmq" target="_blank">https://hub.docker.com/_/rabbitmq</a>
+  </li>
+  <li>
+    Celery Security & SSL Docs —
+    <a href="https://docs.celeryq.dev/en/stable/userguide/security.html" target="_blank">https://docs.celeryq.dev/en/stable/userguide/security.html</a>
+  </li>
+  <li>
+    OpenSSL Documentation —
+    <a href="https://www.openssl.org/docs/" target="_blank">https://www.openssl.org/docs/</a>
+  </li>
+</ul>
+
+
+        </div>
+      </article>
+    </div>
+
+    <nav class="post-navigation">
+      <div class="prev-post">
+        <a href="/posts/exploring-rag-architecture/">
+          ← Previous Post<br>
+          <span>Exploring RAG Architecture in Modern AI Applications</span>
+        </a>
+      </div>
+      <div class="next-post"></div>
+    </nav>
+  </main>
+
+  <footer class="footer">
+    <a href="/" class="link footer__link">Back to Home</a>
+  </footer>
+
+  <script src="/script.js"></script>
+
+  <!-- Mermaid -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true });</script>
+
+  <!-- Prism.js core + autoloader -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/plugins/autoloader/prism-autoloader.min.js"></script>
+  <script>
+    Prism.plugins.autoloader.languages_path = 'https://cdn.jsdelivr.net/npm/prismjs@1/components/';
+  </script>
+
+  <!-- TOC + Read time + Prism theme sync -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // Read time
+      const bodyEl = document.querySelector(".post-body");
+      if (bodyEl) {
+        const text = bodyEl.innerText || "";
+        const words = text.trim().split(/\s+/).length;
+        const minutes = Math.ceil(words / 200);
+        const rt = document.getElementById("read-time");
+        if (rt) {
+          rt.innerText = `⏱️ Estimated read: ${minutes} min`;
+        }
+      }
+
+      // TOC
+      const toc = document.getElementById("toc");
+      if (toc && bodyEl) {
+        const headers = bodyEl.querySelectorAll("h2, h3");
+        let html = "<h3>📑 Table of Contents</h3><ul>";
+        headers.forEach(h => {
+          const id = h.innerText.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          h.id = id;
+          const indent = h.tagName === "H3" ? "1rem" : "0";
+          html += `<li style="margin-left:${indent}"><a href="#${id}">${h.innerText}</a></li>`;
+        });
+        html += "</ul>";
+        toc.innerHTML = html;
+      }
+
+      // Prism theme auto (sync with body.light / body.dark)
+      const lightLink = document.getElementById("prism-light");
+      const darkLink = document.getElementById("prism-dark");
+
+      function syncPrismTheme() {
+        const isDark = document.body.classList.contains("dark");
+        if (isDark) {
+          if (darkLink) darkLink.disabled = false;
+          if (lightLink) lightLink.disabled = true;
+        } else {
+          if (darkLink) darkLink.disabled = true;
+          if (lightLink) lightLink.disabled = false;
+        }
+      }
+
+      syncPrismTheme();
+
+      const themeBtn = document.getElementById("btn-theme");
+      if (themeBtn) {
+        themeBtn.addEventListener("click", function () {
+          // script.js πιθανώς αλλάζει το body class, οπότε συγχρονίζουμε μετά
+          setTimeout(syncPrismTheme, 0);
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
