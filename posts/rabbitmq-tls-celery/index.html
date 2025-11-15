@@ -514,35 +514,6 @@ running RabbitMQ container:
 This works but <strong>does not persist</strong> unless you rebuild your Docker image.
 </p>
 
-<h3>Official documentation</h3>
-
-<p>
-RabbitMQ’s documentation for TLS and certificate-based authentication is distributed across
-multiple pages and often references older versions, which makes it confusing to follow.
-These are the most relevant sources:
-</p>
-
-<ul>
-  <li>
-    RabbitMQ TLS Guide:
-    <a href="https://www.rabbitmq.com/ssl.html" target="_blank">
-      https://www.rabbitmq.com/ssl.html
-    </a>
-  </li>
-  <li>
-    Authentication using SSL certificates:
-    <a href="https://www.rabbitmq.com/authentication.html#ssl" target="_blank">
-      https://www.rabbitmq.com/authentication.html#ssl
-    </a>
-  </li>
-  <li>
-    <code>rabbitmq_auth_mechanism_ssl</code> plugin:
-    <a href="https://www.rabbitmq.com/plugins.html#rabbitmq_auth_mechanism_ssl" target="_blank">
-      https://www.rabbitmq.com/plugins.html#rabbitmq_auth_mechanism_ssl
-    </a>
-  </li>
-</ul>
-
 <p>
 With the plugin enabled, RabbitMQ will map the CN from the client certificate to the
 corresponding RabbitMQ user, enabling secure and seamless mTLS authentication.
@@ -837,6 +808,7 @@ across your infrastructure.
 </p>
 
 <h3>Further Reading & References</h3>
+
 
 <ul>
   <li>
