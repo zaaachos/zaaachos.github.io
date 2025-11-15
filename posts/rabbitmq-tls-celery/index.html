@@ -457,6 +457,14 @@ auth_mechanisms.1 = EXTERNAL
 ssl_cert_login_from = common_name
 </code></pre>
 
+<p>
+One important detail here is the line <code>auth_mechanisms.1 = EXTERNAL</code>.  
+This enables certificate-based authentication, but it only works if the
+<code>rabbitmq_auth_mechanism_ssl</code> plugin is enabled.  
+RabbitMQ then uses the Common Name (CN) from the client certificate as the username,
+which is required for mTLS authentication to function properly. <a href="https://www.rabbitmq.com/docs/access-control#mechanisms">[link]</a>
+</p>
+
           <h2>8. Enable Authentication Plugin</h2>
 
 <p>
