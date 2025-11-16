@@ -37,49 +37,41 @@
 
   <!-- Extra styles for TOC + read time (move to CSS file if you want) -->
   <style>
-    .post-layout {
-      display: flex;
-      gap: 2rem;
-    }
+    
 
-    .toc-sidebar {
-      width: 240px;
-      flex-shrink: 0;
-      position: sticky;
-      top: 7rem;
-      align-self: flex-start;
-      background: var(--clr-bg-alt);
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(var(--clr-primary-rgb), 0.1);
-      font-size: 0.9rem;
-    }
+    .toc-inline {
+  background: var(--clr-bg-alt);
+  padding: 1.25rem 1.5rem;
+  margin: 2rem 0;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(var(--clr-primary-rgb), 0.1);
+}
 
-    .toc-sidebar h3 {
-      margin-top: 0;
-      margin-bottom: 0.75rem;
-      font-size: 1rem;
-    }
+.toc-inline h3 {
+  margin-top: 0;
+  margin-bottom: .75rem;
+}
 
-    .toc-sidebar ul {
-      list-style: none;
-      padding-left: 0;
-      margin: 0;
-    }
+.toc-inline ul {
+  margin: 0;
+  padding-left: 1rem;
+}
 
-    .toc-sidebar li {
-      margin: 0.25rem 0;
-    }
+.toc-inline li {
+  margin: .3rem 0;
+}
 
-    .toc-sidebar a {
-      text-decoration: none;
-      color: var(--clr-primary);
-    }
+.toc-inline a {
+  color: var(--clr-primary);
+  text-decoration: none;
+}
 
-    .toc-sidebar a:hover {
-      text-decoration: underline;
-    }
+.toc-inline a:hover {
+  text-decoration: underline;
+}
+
+   
 
     .read-time {
       font-size: 0.9rem;
@@ -108,12 +100,6 @@
     @media (max-width: 900px) {
       .post-layout {
         flex-direction: column;
-      }
-
-      .toc-sidebar {
-        position: static;
-        width: 100%;
-        order: -1;
       }
     }
   </style>
@@ -150,8 +136,7 @@
     </nav>
 
     <div class="post-layout">
-      <!-- Sidebar TOC -->
-      <aside id="toc" class="toc-sidebar"></aside>
+      
 
       <article class="blog-post">
         <img src="/assets/rabbit_mq_tls.png" alt="RabbitMQ TLS Architecture" class="post-featured-image">
@@ -171,6 +156,9 @@
             </div>
           </div>
         </header>
+
+        <!-- Inline TOC -->
+      <section id="toc-inline" class="toc-inline"></section>
 
         <!-- POST BODY (enriched) -->
         <div class="post-body">
@@ -314,11 +302,15 @@ You will create a local project structure similar to:
 </p>
 
 <pre><code class="language-bash">project/
-  ├── certs/
+  ├── rabbitmq/
   │     ├── ca_certificate.pem
   │     ├── server_certificate.pem
   │     ├── server_key.pem
-  │     ├── client_certificate.pem
+  ├── celery-certs/
+  │     ├── ca_certificate.pem
+  │     ├── worker_cert.pem
+  │     ├── worker_key.pem
+  │     ├── client_cert.pem
   │     └── client_key.pem
   ├── rabbitmq.conf
   ├── definitions.json
@@ -327,7 +319,7 @@ You will create a local project structure similar to:
 </code></pre>
 
 <p>
-The certificates you generate will be placed inside the <code>certs/</code> folder,
+The certificates you generate will be placed inside the <code>rabbitmq/</code> and <code>celery-certs/</code> folder,
 and Docker will automatically mount them into the container under
 <code>/etc/rabbitmq/certs</code>.
 </p>
@@ -364,29 +356,58 @@ make
 </code></pre>
 
 <h3>Generate certificates using OpenSSL</h3>
+<p>
+  You can use my custom script that automates the entire certificate-generation process for securing RabbitMQ and Celery with TLS and mTLS. It creates a root Certificate Authority (CA), generates and signs the RabbitMQ server certificate, and then produces client and worker certificates for Celery, all using OpenSSL. The output is organized into separate directories (rabbitmq/ and celery-certs/) to keep server and client credentials clearly separated.
+</p>
 
-<pre><code class="language-bash"># 1. Create a Certificate Authority (CA)
-openssl genrsa -out ca_key.pem 4096
-openssl req -x509 -new -nodes -key ca_key.pem -sha256 -days 365 \
-  -out ca_certificate.pem -subj "/CN=MyRootCA"
+<pre><code class="language-bash">#!/bin/bash
 
-# 2. Generate server key + CSR
-openssl genrsa -out server_key.pem 4096
-openssl req -new -key server_key.pem -out server.csr \
-  -subj "/CN=rabbitmq.local"
+set -e
 
-# 3. Sign server certificate using CA
-openssl x509 -req -in server.csr -CA ca_certificate.pem -CAkey ca_key.pem \
-  -CAcreateserial -out server_certificate.pem -days 365 -sha256
+# Folder structure
+mkdir -p rabbitmq
+mkdir -p celery-certs
 
-# 4. Generate client key + CSR
-openssl genrsa -out client_key.pem 4096
-openssl req -new -key client_key.pem -out client.csr \
-  -subj "/CN=celery_worker"
+echo "🔐 Generating CA..."
+openssl genrsa -out ca.key 4096
+openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 \
+  -out ca_certificate.pem \
+  -subj "/C=US/ST=CA/L=SanFrancisco/O=MyCompany/OU=Security/CN=MyRootCA"
 
-# 5. Sign client certificate
-openssl x509 -req -in client.csr -CA ca_certificate.pem -CAkey ca_key.pem \
-  -CAcreateserial -out client_certificate.pem -days 365 -sha256
+echo "📜 Generating RabbitMQ server cert..."
+openssl genrsa -out rabbitmq/server_key.pem 2048
+openssl req -new -key rabbitmq/server_key.pem -out server.csr \
+  -subj "/C=US/ST=CA/L=SanFrancisco/O=MyCompany/OU=IT/CN=localhost"
+
+openssl x509 -req -in server.csr -CA ca_certificate.pem -CAkey ca.key -CAcreateserial \
+  -out rabbitmq/server_cert.pem -days 825 -sha256
+
+cp ca_certificate.pem rabbitmq/
+
+echo "👤 Generating Celery worker cert..."
+openssl genrsa -out celery-certs/worker_key.pem 2048
+openssl req -new -key celery-certs/worker_key.pem -out worker.csr \
+  -subj "/C=US/ST=CA/L=SanFrancisco/O=MyCompany/OU=Dev/CN=celery_worker"
+
+openssl x509 -req -in worker.csr -CA ca_certificate.pem -CAkey ca.key -CAcreateserial \
+  -out celery-certs/worker_cert.pem -days 825 -sha256
+
+echo "👤 Generating Celery client cert..."
+openssl genrsa -out celery-certs/client_key.pem 2048
+openssl req -new -key celery-certs/client_key.pem -out client.csr \
+  -subj "/C=US/ST=CA/L=SanFrancisco/O=MyCompany/OU=Dev/CN=celery_client"
+
+openssl x509 -req -in client.csr -CA ca_certificate.pem -CAkey ca.key -CAcreateserial \
+  -out celery-certs/client_cert.pem -days 825 -sha256
+
+cp ca_certificate.pem celery-certs/
+
+# Clean up
+rm -f *.csr *.srl ca.key
+
+echo "✅ Certificates generated and organized:"
+echo "  - rabbitmq/: server_cert.pem, server_key.pem, ca_certificate.pem"
+echo "  - celery-certs/: client_cert.pem, client_key.pem, ca_certificate.pem"
 </code></pre>
 
 
@@ -400,7 +421,8 @@ project-local directory:
 </p>
 
 <pre><code class="language-bash">project/
-  └── certs/
+  └── celery-certs/
+  └── rabbitmq/
 </code></pre>
 
 <p>
@@ -408,15 +430,7 @@ Docker will then mount this folder into the container at runtime:
 </p>
 
 <pre><code class="language-yaml">volumes:
-  - ./certs:/etc/rabbitmq/certs
-</code></pre>
-
-<p>
-The RabbitMQ container requires strict permissions on private keys.
-To avoid permission issues, set them locally:
-</p>
-
-<pre><code class="language-bash">chmod 600 certs/*_key.pem
+  - ./celery-certs:/etc/rabbitmq/certs
 </code></pre>
 
 <p>
@@ -438,23 +452,38 @@ the container. Create this file in the root of your project directory:
 Then paste the following TLS and mTLS configuration into it:
 </p>
 
-          <pre><code class="language-ini"># Disable non-TLS AMQP
+          <pre><code class="language-ini"># load predefined usrs and vhosts
+load_definitions = /etc/rabbitmq/definitions.json
+
+# TLS/SSL options
+listeners.ssl.default = 5671
 listeners.tcp = none
 
-# TLS port
-listeners.ssl.default = 5671
-
-# Certificate paths
 ssl_options.cacertfile = /etc/rabbitmq/certs/ca_certificate.pem
-ssl_options.certfile   = /etc/rabbitmq/certs/server_certificate.pem
-ssl_options.keyfile    = /etc/rabbitmq/certs/server_key.pem
-
-# mTLS
+ssl_options.certfile = /etc/rabbitmq/certs/server_cert.pem
+ssl_options.keyfile = /etc/rabbitmq/certs/server_key.pem
 ssl_options.verify = verify_peer
 ssl_options.fail_if_no_peer_cert = true
 
+# Authentication mechanism
 auth_mechanisms.1 = EXTERNAL
+# auth_mechanisms.2 = PLAIN
+# auth_mechanisms.3 = AMQPLAIN
+# auth_mechanisms.4 = EXTERNAL
+
 ssl_cert_login_from = common_name
+
+# TLS UI
+management.listener.port = 15671
+management.listener.ssl = true
+management.listener.ssl_opts.cacertfile = /etc/rabbitmq/certs/ca_certificate.pem
+management.listener.ssl_opts.certfile = /etc/rabbitmq/certs/server_cert.pem
+management.listener.ssl_opts.keyfile = /etc/rabbitmq/certs/server_key.pem
+management.listener.ssl_opts.verify = verify_none
+management.listener.ssl_opts.fail_if_no_peer_cert = false
+
+# default_user = none
+# default_pass = none
 </code></pre>
 
 <p>
@@ -558,27 +587,40 @@ via definitions.json.
           <p>Preconfigure RabbitMQ users, permissions, and vhosts at startup.</p>
 
           <pre><code class="language-json">{
-  "users": [
-    {
-      "name": "celery_user",
-      "tags": "administrator",
-      "password_hash": "",
-      "hashing_algorithm": "rabbit_password_hashing_sha256"
-    }
-  ],
-  "vhosts": [
-    { "name": "my_vhost" }
-  ],
-  "permissions": [
-    {
-      "user": "celery_user",
-      "vhost": "my_vhost",
-      "configure": ".*",
-      "write": ".*",
-      "read": ".*"
-    }
-  ]
-}
+    "vhosts": [
+      {
+        "name": "my_vhost"
+      }
+    ],
+    "users": [
+      {
+        "name": "celery_worker",
+        "password_hash": "",
+        "tags": "administrator"
+      },
+      {
+        "name": "celery_client",
+        "password_hash": "",
+        "tags": "administrator"
+      }
+    ],
+    "permissions": [
+      {
+        "user": "celery_client",
+        "vhost": "my_vhost",
+        "configure": ".*",
+        "write": ".*",
+        "read": ".*"
+      },
+      {
+        "user": "celery_worker",
+        "vhost": "my_vhost",
+        "configure": ".*",
+        "write": ".*",
+        "read": ".*"
+      }
+    ]
+  }
 </code></pre>
 
           <h2>🐳 Dockerfile for TLS-enabled RabbitMQ</h2>
@@ -603,18 +645,29 @@ Below is a minimal but production-ready Dockerfile that:
 <p>The configuration is intentionally simple and easy to extend.</p>
 
 
-          <pre><code class="language-docker">FROM rabbitmq:3.12-management
+          <pre><code class="language-docker">ARG RABBITMQ_VERSION=4-management
+
+# the official image runs as non-root 
+FROM rabbitmq:$RABBITMQ_VERSION
 
 RUN rabbitmq-plugins enable --offline rabbitmq_auth_mechanism_ssl
 
-COPY certs/ /etc/rabbitmq/certs/
+# copy the config and the certs files
 COPY rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
+COPY /rabbitmq /etc/rabbitmq/certs
+
 COPY definitions.json /etc/rabbitmq/definitions.json
 
-RUN chown -R rabbitmq:rabbitmq /etc/rabbitmq && \
-    chmod 600 /etc/rabbitmq/certs/*.pem
+# RUN chmod +x /usr/local/bin/rabbitmq_init.sh
+
+# make the certs read/write only from the user that eanbles the MQ server
+RUN chmod 644 /etc/rabbitmq/certs/*
 
 EXPOSE 5671 15671
+# ENV RABBITMQ_CONFIG_FILE=/etc/rabbitmq/rabbitmq
+
+# # Start the RabbitMQ server using an init script
+CMD ["rabbitmq-server"]
 </code></pre>
 
           <h2>🐋 docker-compose.yml</h2>
@@ -639,10 +692,6 @@ services:
     ports:
       - "5671:5671"
       - "15671:15671"
-    volumes:
-      - ./certs:/etc/rabbitmq/certs
-      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
-      - ./definitions.json:/etc/rabbitmq/definitions.json
 </code></pre>
 
           <h2>10. Celery Configuration (TLS + mTLS)</h2>
@@ -668,28 +717,48 @@ or zero-trust environments.
 </p>
 
 
-          <pre><code class="language-python">from celery import Celery
-import ssl
+          <pre><code class="language-python"># my_celery_app.py
+from celery import Celery
 import os
+import ssl
 
-CERTS_BASE = "/app/certs"
 
-app = Celery("my_app")
+CERTS_BASE = "celery-certs"
 
-app.conf.update(
-    broker_url="amqps://rabbitmq_host:5671/my_vhost",
-    broker_use_ssl={
-        'ca_certs': os.path.join(CERTS_BASE, 'ca_certificate.pem'),
-        'certfile': os.path.join(CERTS_BASE, 'client_certificate.pem'),
-        'keyfile': os.path.join(CERTS_BASE, 'client_key.pem'),
-        'cert_reqs': ssl.CERT_REQUIRED,
-        'ssl_version': ssl.PROTOCOL_TLS_CLIENT,
-    },
-    result_backend="rpc://",
+# Verify that the certificate files are accessible
+if not os.path.exists(os.path.join(CERTS_BASE, "ca_certificate.pem")):
+    raise FileNotFoundError("CA certificate not found")
+if not os.path.exists(os.path.join(CERTS_BASE, "worker_cert.pem")):
+    raise FileNotFoundError("Client certificate not found")
+if not os.path.exists(os.path.join(CERTS_BASE, "worker_key.pem")):
+    raise FileNotFoundError("Client key not found")
+
+
+# Initialize Celery app
+app = Celery(
+    "worker",
 )
+
+# Update Celery configuration
+app.conf.update(
+    broker_url=f"amqps://rabbitmq:5671/my_vhost",
+    broker_use_ssl={
+        "ca_certs": os.path.join(CERTS_BASE, "ca_certificate.pem"),
+        "certfile": os.path.join(CERTS_BASE, "worker_cert.pem"),
+        "keyfile": os.path.join(CERTS_BASE, "worker_key.pem"),
+        "cert_reqs": ssl.CERT_REQUIRED,
+        "ssl_version": ssl.PROTOCOL_TLS_CLIENT,
+    },
+    broker_login_method="EXTERNAL",  # Only if you're using EXTERNAL authentication
+    result_backend="rpc://",
+    result_expires=3600
+)
+
+if _name_ == "_main_":
+    app.start()
 </code></pre>
 
-          <pre><code class="language-bash">celery -A my_app worker -l info</code></pre>
+          <pre><code class="language-bash">celery -A my_celery_app worker -l info</code></pre>
 
          <h2>11. Testing TLS &amp; mTLS</h2>
 
@@ -710,10 +779,10 @@ The command below performs a full TLS handshake using your CA, client certificat
 </p>
 
 
-          <pre><code class="language-bash">openssl s_client -connect rabbitmq_host:5671 \
-  -CAfile ca_certificate.pem \
-  -cert client_certificate.pem \
-  -key client_key.pem
+          <pre><code class="language-bash">openssl s_client -connect localhost:5671 \
+  -CAfile rabbitmq/ca_certificate.pem \
+  -cert celery-certs/client_cert.pem \
+  -key celery-certs/client_key.pem
 </code></pre>
 
           <h2>12. Architecture Diagrams</h2>
@@ -840,9 +909,9 @@ across your infrastructure.
 
     <nav class="post-navigation">
       <div class="prev-post">
-        <a href="/posts/exploring-rag-architecture/">
+        <a href="/posts/">
           ← Previous Post<br>
-          <span>Exploring RAG Architecture in Modern AI Applications</span>
+          <span>Posts</span>
         </a>
       </div>
       <div class="next-post"></div>
@@ -882,7 +951,7 @@ across your infrastructure.
       }
 
       // TOC
-      const toc = document.getElementById("toc");
+      const toc = document.getElementById("toc-inline");
       if (toc && bodyEl) {
         const headers = bodyEl.querySelectorAll("h2, h3");
         let html = "<h3>📑 Table of Contents</h3><ul>";
